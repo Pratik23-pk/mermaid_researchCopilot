@@ -1,0 +1,4 @@
+Collaborative filtering uses user-item interactions to recommend items.
+Content-based filtering uses item features and user profiles.
+Hybrid recommenders combine both, often by blending scores or stacking models.
+In research tools, recommenders can suggest related papers, sections, or topics.

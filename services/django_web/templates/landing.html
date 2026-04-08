@@ -1,0 +1,184 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mermaid</title>
+  <link rel="stylesheet" href="{% static 'css/landing.css' %}" />
+</head>
+<body>
+  <canvas id="bgCanvas"></canvas>
+  <canvas id="particleCanvas"></canvas>
+
+  <div class="page-shell">
+    <header class="topbar">
+      <a href="/" class="brand-lockup" aria-label="Mermaid home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg class="brand-logo" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="mermaidLandingTail" x1="18" y1="16" x2="96" y2="108" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stop-color="#9AF7E3"/>
+                <stop offset="0.5" stop-color="#72DCCF"/>
+                <stop offset="1" stop-color="#2F7D88"/>
+              </linearGradient>
+              <linearGradient id="mermaidLandingPearl" x1="44" y1="18" x2="71" y2="39" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stop-color="#FFF7DE"/>
+                <stop offset="1" stop-color="#F2C889"/>
+              </linearGradient>
+            </defs>
+            <circle cx="60" cy="28" r="11" fill="url(#mermaidLandingPearl)"/>
+            <path d="M60 40C47 47 44 59 49 73C52 81 50 90 39 104L26 119L52 107L60 118L68 107L94 119L81 104C70 90 68 81 71 73C76 59 73 47 60 40Z" fill="url(#mermaidLandingTail)"/>
+            <path d="M50 68C56 72 64 72 70 68" stroke="#E9FFF9" stroke-width="4" stroke-linecap="round"/>
+            <path d="M44 92L60 84L76 92" stroke="#D6FFF4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span class="brand-copy">
+          <span class="brand-kicker">Research Copilot for Your Sources</span>
+          <span class="brand"><span class="brand-wordmark">Mermaid</span></span>
+          <span class="brand-motto">Ocean-deep retrieval for grounded answers</span>
+        </span>
+      </a>
+      <button
+        id="openAuthBtn"
+        type="button"
+        class="glow-btn"
+        data-open-auth="true"
+        data-auth-tab="login"
+      >
+        Sign In
+      </button>
+    </header>
+
+    <main class="hero-wrap">
+      <section class="hero-copy">
+        <p class="eyebrow">Upload. Retrieve. Ask better questions.</p>
+        <div class="hero-brandline">
+          <span class="hero-brand-pill">Mermaid</span>
+          <span class="hero-brand-trace"></span>
+        </div>
+        <h1><span class="hero-wordmark">Mermaid</span> turns scattered sources into answers you can actually use.</h1>
+        <p class="hero-lede">
+          Bring together private PDFs and trusted web pages, then chat with Mermaid, a copilot that stays
+          anchored to your own research context from the first question onward.
+        </p>
+
+        <div class="hero-actions">
+          <button
+            type="button"
+            class="glow-btn"
+            data-open-auth="true"
+            data-auth-tab="signup"
+          >
+            Create Account
+          </button>
+          <button
+            type="button"
+            class="ghost-btn"
+            data-open-auth="true"
+            data-auth-tab="login"
+          >
+            Log In
+          </button>
+        </div>
+
+        <div class="signal-grid">
+          <article class="signal-card">
+            <span class="signal-value">Source Hub</span>
+            <p>Pull papers and live links into one working research stack.</p>
+          </article>
+          <article class="signal-card">
+            <span class="signal-value">Private Context</span>
+            <p>Your indexed material stays tied to your signed-in session.</p>
+          </article>
+          <article class="signal-card">
+            <span class="signal-value">Grounded Answers</span>
+            <p>Responses are shaped by retrieval, not just generic model guesses.</p>
+          </article>
+        </div>
+      </section>
+
+      <aside class="hero-panel" aria-label="Product overview">
+        <p class="panel-kicker">Why teams use it</p>
+        <h2>Built for fast synthesis across papers, links, and notes.</h2>
+        <ul class="feature-list">
+          <li>Move from collection to analysis without juggling tabs and tools.</li>
+          <li>Ask targeted questions over a source base that belongs to you.</li>
+          <li>Inspect the evidence only when you want to verify the answer trail.</li>
+        </ul>
+
+        <div class="panel-divider"></div>
+
+        <div class="status-stack">
+          <div class="status-row">
+            <span class="status-label">Workflow</span>
+            <span class="status-copy">Collect sources, index them, then interrogate the signal.</span>
+          </div>
+          <div class="status-row">
+            <span class="status-label">Privacy</span>
+            <span class="status-copy">Each user works inside their own isolated research context.</span>
+          </div>
+          <div class="status-row">
+            <span class="status-label">Use case</span>
+            <span class="status-copy">Literature review, source comparison, and evidence-backed Q&A.</span>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  {% if messages %}
+  <div class="flash-stack">
+    {% for message in messages %}
+      <div class="flash {{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div id="authModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+    <div class="modal-card">
+      <button id="closeAuthBtn" class="close-btn" aria-label="Close">×</button>
+
+      <div class="tab-row">
+        <button class="tab-btn active" data-tab="login">Login</button>
+        <button class="tab-btn" data-tab="signup">Sign Up</button>
+      </div>
+
+      <section id="loginTab" class="tab-panel active">
+        <h2 id="authTitle">Welcome Back</h2>
+        <p class="modal-copy">Pick up where you left off and jump straight back into your research flow.</p>
+        <form method="post" action="{% url 'login' %}" class="auth-form">
+          {% csrf_token %}
+          <label>Username</label>
+          <input type="text" name="username" required />
+
+          <label>Password</label>
+          <input type="password" name="password" required />
+
+          <button type="submit" class="glow-btn full">Login</button>
+        </form>
+      </section>
+
+      <section id="signupTab" class="tab-panel">
+        <h2>Create Account</h2>
+        <p class="modal-copy">Create your workspace and start building Mermaid around your source-aware research flow.</p>
+        <form method="post" action="{% url 'signup' %}" class="auth-form">
+          {% csrf_token %}
+          <label>Username</label>
+          <input type="text" name="username" minlength="3" required />
+
+          <label>Email</label>
+          <input type="email" name="email" />
+
+          <label>Password</label>
+          <input type="password" name="password" minlength="6" required />
+
+          <button type="submit" class="glow-btn full">Sign Up</button>
+        </form>
+      </section>
+    </div>
+  </div>
+
+  <script src="{% static 'js/landing.js' %}"></script>
+</body>
+</html>

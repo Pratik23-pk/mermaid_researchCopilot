@@ -1,0 +1,43 @@
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.Spotlight-V100
+.Trashes
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+.venv*/
+venv/
+/3.11/
+/explicitly/
+/use/
+/#/
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Local app data and runtime state
+chroma_db/
+pdfs/
+runtime_sessions/
+*.sqlite3
+*.db
+services/django_web/db.sqlite3
+services/django_web/staticfiles/
+services/fastapi_service/data/
+
+# Logs
+*.log

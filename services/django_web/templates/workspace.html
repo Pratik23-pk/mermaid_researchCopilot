@@ -1,0 +1,144 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mermaid Workspace</title>
+  <link rel="stylesheet" href="{% static 'css/workspace.css' %}" />
+</head>
+<body>
+  <canvas id="particleCanvas"></canvas>
+
+  <div class="workspace-shell">
+    <header class="workspace-topbar">
+      <div class="brand-block">
+        <div class="brand-hero">
+          <span class="brand-mark brand-mark-workspace" aria-hidden="true">
+            <svg class="brand-logo" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="mermaidWorkspaceTail" x1="18" y1="16" x2="96" y2="108" gradientUnits="userSpaceOnUse">
+                  <stop offset="0" stop-color="#9AF7E3"/>
+                  <stop offset="0.5" stop-color="#72DCCF"/>
+                  <stop offset="1" stop-color="#2F7D88"/>
+                </linearGradient>
+                <linearGradient id="mermaidWorkspacePearl" x1="44" y1="18" x2="71" y2="39" gradientUnits="userSpaceOnUse">
+                  <stop offset="0" stop-color="#FFF7DE"/>
+                  <stop offset="1" stop-color="#F2C889"/>
+                </linearGradient>
+              </defs>
+              <circle cx="60" cy="28" r="11" fill="url(#mermaidWorkspacePearl)"/>
+              <path d="M60 40C47 47 44 59 49 73C52 81 50 90 39 104L26 119L52 107L60 118L68 107L94 119L81 104C70 90 68 81 71 73C76 59 73 47 60 40Z" fill="url(#mermaidWorkspaceTail)"/>
+              <path d="M50 68C56 72 64 72 70 68" stroke="#E9FFF9" stroke-width="4" stroke-linecap="round"/>
+              <path d="M44 92L60 84L76 92" stroke="#D6FFF4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <div class="brand-copy brand-copy-workspace">
+            <p class="section-label">Mermaid</p>
+            <div class="brand-name"><span class="brand-wordmark">Mermaid</span></div>
+            <div class="brand-motto">Ocean-deep retrieval for grounded answers</div>
+          </div>
+        </div>
+        <h1>Your research command center</h1>
+        <p>Signed in as <strong>{{ request.user.username }}</strong></p>
+      </div>
+
+      <div class="topbar-actions">
+        <div class="session-chip">Your sources, retrieval context, and Mermaid chat live in one session</div>
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button class="btn danger" type="submit">Logout + Delete My Data</button>
+        </form>
+      </div>
+    </header>
+
+    <section class="ambient-field overview-strip" aria-label="Workspace summary">
+      <article class="float-panel fp-one">
+        <span class="overview-index">01</span>
+        <h4>Gather</h4>
+        <p>Bring in papers, reports, and live articles to build your working source base.</p>
+      </article>
+      <article class="float-panel fp-two">
+        <span class="overview-index">02</span>
+        <h4>Prepare</h4>
+        <p>Each source is indexed so Mermaid can answer from your material, not thin air.</p>
+      </article>
+      <article class="float-panel fp-three">
+        <span class="overview-index">03</span>
+        <h4>Analyze</h4>
+        <p>Ask sharp questions, compare ideas, and inspect the evidence when you need it.</p>
+      </article>
+    </section>
+
+    <main class="layout">
+      <aside id="ingestPanel" class="panel ingest-panel">
+        <div class="panel-head">
+          <p class="section-label">Source setup</p>
+          <h2>Build your source base</h2>
+          <p>Add documents and links here, then let Mermaid work over a grounded knowledge set.</p>
+        </div>
+
+        <section class="feature-card feature-upload">
+          <div class="feature-title-row">
+            <h3>Upload PDFs</h3>
+            <span class="feature-tag">Multi-file</span>
+          </div>
+          <p class="hint">Drop in one paper or a full batch and add them to this active research session.</p>
+          <input id="pdfInput" type="file" accept="application/pdf" multiple />
+          <div id="pdfSelection" class="file-selection">No PDFs selected.</div>
+          <button id="uploadBtn" class="btn btn-primary">Upload + Ingest</button>
+          <div id="uploadResult" class="result"></div>
+        </section>
+
+        <section class="feature-card feature-url">
+          <div class="feature-title-row">
+            <h3>Ingest Web URL</h3>
+            <span class="feature-tag">Live source</span>
+          </div>
+          <p class="hint">Capture an article, report, or reference page and fold it into the same context.</p>
+          <input id="urlInput" type="url" placeholder="https://example.com/article" />
+          <button id="urlIngestBtn" class="btn btn-secondary">Ingest URL</button>
+          <div id="urlResult" class="result"></div>
+        </section>
+
+        <section class="feature-card feature-stats">
+          <div class="feature-title-row">
+            <h3>Session Stats</h3>
+            <span class="feature-tag">Health</span>
+          </div>
+          <p class="hint">A quick snapshot of how much source material is currently loaded into this session.</p>
+          <button id="refreshStatsBtn" class="btn ghost">Refresh Stats</button>
+          <div id="statsBox" class="stats-box" aria-live="polite">No stats yet.</div>
+        </section>
+      </aside>
+
+      <section id="chatPanel" class="panel chat-panel">
+        <div class="panel-head">
+          <p class="section-label">Conversation</p>
+          <h2>Ask Mermaid</h2>
+          <p>Probe the source base, test ideas, and surface relevant evidence without losing your thread.</p>
+        </div>
+
+        <div id="chatLog" class="chat-log"></div>
+
+        <div class="chat-input-row">
+          <textarea
+            id="questionInput"
+            rows="4"
+            placeholder="Ask a research question grounded in your uploaded context..."
+          ></textarea>
+          <div class="chat-actions">
+            <p class="hint compact">Shortcut: <strong>Ctrl/Cmd + Enter</strong></p>
+            <button id="askBtn" class="btn btn-accent">Ask Mermaid</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    window.CSRF_TOKEN = "{{ csrf_token }}";
+  </script>
+  <script src="{% static 'js/workspace.js' %}"></script>
+</body>
+</html>

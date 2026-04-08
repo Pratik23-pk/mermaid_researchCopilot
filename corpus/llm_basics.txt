@@ -1,0 +1,7 @@
+Large Language Models (LLMs) are neural networks trained on huge text datasets to predict the next token in a sequence. They learn patterns of language, facts, and some reasoning abilities from this data.
+
+Most modern LLMs use the transformer architecture. Transformers rely on self-attention, which lets the model look at all tokens in a sentence at once and decide which ones are important for predicting the next token.
+
+An LLM represents text as vectors called embeddings. Tokenization converts text into tokens, embeddings map tokens to vectors, and attention layers update these vectors using context. After many layers, a decoder layer chooses the most likely next token step by step.
+
+LLMs can do many tasks without task-specific training: answering questions, summarizing, translating, writing code, and more. With retrieval-augmented generation (RAG), an LLM can read external documents and use them as context to produce more accurate and grounded answers.

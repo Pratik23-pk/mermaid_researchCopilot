@@ -1,0 +1,4 @@
+Retrieval-augmented generation (RAG) combines a retriever and a generator.
+The retriever finds relevant documents from a knowledge base.
+The generator (LLM) uses those documents to answer questions with more factual grounding.
+RAG is useful when we need up-to-date or domain-specific knowledge without retraining the LLM.
