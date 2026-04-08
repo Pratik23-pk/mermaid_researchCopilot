@@ -1,6 +1,6 @@
 # Mermaid
 
-> A dual-service research copilot for PDFs and web pages, powered by Django auth, FastAPI ingestion, hybrid retrieval, and per-user ChromaDB stores.
+> A dual-service research copilot for PDFs and web pages, powered by Django auth, FastAPI ingestion, and a recommender-style retrieval engine on top of per-user ChromaDB stores.
 
 Mermaid lets each signed-in user upload research material, index it once, and ask grounded questions without sending whole documents to the LLM.
 
@@ -30,9 +30,47 @@ flowchart LR
 - Handles login, signup, logout, and the workspace UI through Django
 - Accepts PDFs and URLs, then stores them per user through FastAPI
 - Splits documents into chunks, creates embeddings, and writes them to ChromaDB
-- Uses hybrid retrieval and reranking so only the best context reaches the LLM
+- Uses a recommender-style hybrid retrieval and reranking pipeline so only the best context reaches the LLM
 - Returns grounded answers with retrieval metadata instead of raw model guesses
 - Deletes a user’s PDFs and vector data on logout for clean isolation
+
+## Innovation Spotlight: Recommender Retrieval Engine
+
+The strongest part of Mermaid is not just that it does RAG, but how it does retrieval.
+Instead of sending the top semantic matches directly to the model, Mermaid treats retrieval like a recommendation problem:
+generate multiple candidate sets, score them with several signals, remove redundancy, and assemble the best evidence under a strict prompt budget.
+
+```mermaid
+flowchart LR
+    Q["User question"] --> T["Tokenize query"]
+    Q --> E["Embed query"]
+    E --> V["Vector candidate search in ChromaDB"]
+    T --> S["Sparse lexical scan over chunk text"]
+    V --> M["Merge candidate pools"]
+    S --> M
+    M --> W["Weighted reranking"]
+    W --> D["Diversity filtering + max chunks per source"]
+    D --> C["Dynamic top-k selection"]
+    C --> X["Query-focused chunk compression"]
+    X --> B["Context budget assembly"]
+    B --> L["Grounded LLM answer"]
+```
+
+### What makes it innovative
+
+- It uses two retrieval views at once: semantic vector similarity and lexical token overlap.
+- It reranks chunks with a weighted score instead of trusting raw vector distance alone.
+- It rewards better chunk position and healthy chunk length, so the chosen evidence is more readable and useful.
+- It applies per-source limits and near-duplicate filtering, which keeps the prompt diverse instead of repetitive.
+- It uses dynamic `top_k` and context-character budgets, so prompt cost stays controlled as document volume grows.
+- It compresses each selected chunk around the most query-relevant window before it ever reaches the LLM.
+
+### Why this matters
+
+- Better retrieval quality than plain top-k vector search
+- Lower LLM context cost because Mermaid sends only compressed evidence
+- More robust answers across mixed PDF and web sources
+- Easier to explain in interviews because the retrieval layer is clearly engineered, not just library-default behavior
 
 ## Why This Is Proper RAG
 
@@ -41,6 +79,17 @@ flowchart LR
 - Context is compressed and capped so prompts stay cheap and focused
 - PDF and vector data are isolated per user
 - The LLM is instructed to say it is unsure when context is weak
+
+## End-to-End Workflow
+
+1. The user logs in through Django and enters the Mermaid workspace.
+2. PDFs are staged safely in Django, while URLs are validated and forwarded to FastAPI.
+3. FastAPI stores each user’s files in isolated `pdfs/` and `chroma_db/` directories.
+4. Mermaid extracts text, chunks it, embeds it, and indexes the chunks in ChromaDB.
+5. When a question arrives, the recommender engine generates vector and lexical candidates.
+6. Candidates are reranked, deduplicated, compressed, and assembled under a context budget.
+7. Only that final evidence set is passed to the LLM for grounded answer generation.
+8. Mermaid returns the answer plus retrieval stats so the user can inspect what was used.
 
 ## Main Services
 
